@@ -1,0 +1,479 @@
+{
+  "customer": {
+    "name": "globex",
+    "title": "Globex Rentals",
+    "tagline": "Fleet operations",
+    "theme": {
+      "primary": "amber",
+      "surface": "stone"
+    }
+  },
+  "entityOrder": [
+    "Customer",
+    "Car"
+  ],
+  "entities": {
+    "Customer": {
+      "name": "Customer",
+      "label": "Renter",
+      "pluralLabel": "Renters",
+      "path": "customers",
+      "table": "Customer",
+      "delegate": "customer",
+      "titleFields": [
+        "firstName",
+        "lastName"
+      ],
+      "sections": [
+        {
+          "key": "core",
+          "label": "Details"
+        },
+        {
+          "key": "fleet",
+          "label": "Fleet",
+          "module": "fleet"
+        }
+      ],
+      "filters": [],
+      "fields": [
+        {
+          "type": "string",
+          "label": "First name",
+          "required": true,
+          "list": true,
+          "key": "firstName",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "firstName",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Last name",
+          "required": true,
+          "list": true,
+          "key": "lastName",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "lastName",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Email",
+          "list": true,
+          "key": "email",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "email",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Phone",
+          "key": "phone",
+          "searchable": [
+            "text"
+          ],
+          "operators": [],
+          "source": "core",
+          "column": "phone",
+          "section": "core"
+        },
+        {
+          "type": "text",
+          "label": "Notes",
+          "key": "notes",
+          "searchable": [
+            "text"
+          ],
+          "operators": [],
+          "source": "core",
+          "column": "notes",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Driver licence #",
+          "list": true,
+          "key": "fleet.licenseNumber",
+          "searchable": [
+            "filter",
+            "text"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "ext",
+          "module": "fleet",
+          "path": [
+            "fleet",
+            "licenseNumber"
+          ],
+          "section": "fleet"
+        },
+        {
+          "type": "date",
+          "label": "Licence expiry",
+          "key": "fleet.licenseExpiry",
+          "searchable": [
+            "range"
+          ],
+          "operators": [
+            "gte",
+            "lte"
+          ],
+          "source": "ext",
+          "module": "fleet",
+          "path": [
+            "fleet",
+            "licenseExpiry"
+          ],
+          "section": "fleet"
+        }
+      ]
+    },
+    "Car": {
+      "name": "Car",
+      "label": "Car",
+      "pluralLabel": "Cars",
+      "path": "cars",
+      "table": "Car",
+      "delegate": "car",
+      "titleFields": [
+        "year",
+        "make",
+        "model"
+      ],
+      "sections": [
+        {
+          "key": "core",
+          "label": "Details"
+        },
+        {
+          "key": "serviceHistory",
+          "label": "Service history",
+          "module": "serviceHistory"
+        },
+        {
+          "key": "fleet",
+          "label": "Fleet",
+          "module": "fleet"
+        }
+      ],
+      "filters": [
+        {
+          "type": "bool",
+          "label": "Service due",
+          "key": "serviceHistory.serviceDue",
+          "module": "serviceHistory"
+        }
+      ],
+      "fields": [
+        {
+          "type": "string",
+          "label": "VIN",
+          "required": true,
+          "maxLength": 17,
+          "list": true,
+          "key": "vin",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "vin",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Make",
+          "required": true,
+          "list": true,
+          "key": "make",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "make",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Model",
+          "required": true,
+          "list": true,
+          "key": "model",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "model",
+          "section": "core"
+        },
+        {
+          "type": "int",
+          "label": "Year",
+          "required": true,
+          "min": 1900,
+          "max": 2100,
+          "list": true,
+          "key": "year",
+          "searchable": [
+            "filter",
+            "range"
+          ],
+          "operators": [
+            "eq",
+            "gte",
+            "lte"
+          ],
+          "source": "core",
+          "column": "year",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Colour",
+          "key": "color",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "color",
+          "section": "core"
+        },
+        {
+          "type": "reference",
+          "ref": "Customer",
+          "label": "Owner",
+          "list": true,
+          "key": "customerId",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq"
+          ],
+          "source": "core",
+          "column": "customerId",
+          "section": "core"
+        },
+        {
+          "type": "int",
+          "min": 1,
+          "max": 36,
+          "label": "Service interval (months)",
+          "example": 12,
+          "key": "serviceHistory.intervalMonths",
+          "searchable": [],
+          "operators": [],
+          "source": "ext",
+          "module": "serviceHistory",
+          "path": [
+            "serviceHistory",
+            "intervalMonths"
+          ],
+          "section": "serviceHistory"
+        },
+        {
+          "type": "date",
+          "label": "Last service",
+          "list": true,
+          "key": "serviceHistory.lastServiceDate",
+          "searchable": [],
+          "operators": [],
+          "source": "computed",
+          "module": "serviceHistory",
+          "path": [
+            "serviceHistory",
+            "lastServiceDate"
+          ],
+          "section": "serviceHistory",
+          "readOnly": true
+        },
+        {
+          "type": "int",
+          "label": "Services",
+          "key": "serviceHistory.serviceCount",
+          "searchable": [],
+          "operators": [],
+          "source": "computed",
+          "module": "serviceHistory",
+          "path": [
+            "serviceHistory",
+            "serviceCount"
+          ],
+          "section": "serviceHistory",
+          "readOnly": true
+        },
+        {
+          "type": "bool",
+          "label": "Service due",
+          "key": "serviceHistory.due",
+          "searchable": [],
+          "operators": [],
+          "source": "computed",
+          "module": "serviceHistory",
+          "path": [
+            "serviceHistory",
+            "due"
+          ],
+          "section": "serviceHistory",
+          "readOnly": true
+        },
+        {
+          "type": "string",
+          "required": true,
+          "label": "Fleet #",
+          "example": "GX-0042",
+          "list": true,
+          "key": "fleet.fleetNumber",
+          "searchable": [
+            "filter",
+            "text"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "ext",
+          "module": "fleet",
+          "path": [
+            "fleet",
+            "fleetNumber"
+          ],
+          "section": "fleet"
+        },
+        {
+          "type": "enum",
+          "values": [
+            "north",
+            "south",
+            "airport"
+          ],
+          "label": "Depot",
+          "list": true,
+          "key": "fleet.depot",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "in"
+          ],
+          "source": "ext",
+          "module": "fleet",
+          "path": [
+            "fleet",
+            "depot"
+          ],
+          "section": "fleet"
+        },
+        {
+          "type": "enum",
+          "values": [
+            "available",
+            "rented",
+            "maintenance"
+          ],
+          "label": "Status",
+          "required": true,
+          "list": true,
+          "key": "fleet.status",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "in"
+          ],
+          "source": "ext",
+          "module": "fleet",
+          "path": [
+            "fleet",
+            "status"
+          ],
+          "section": "fleet"
+        },
+        {
+          "type": "int",
+          "min": 0,
+          "label": "Odometer (km)",
+          "key": "fleet.odometer",
+          "searchable": [
+            "range"
+          ],
+          "operators": [
+            "gte",
+            "lte"
+          ],
+          "source": "ext",
+          "module": "fleet",
+          "path": [
+            "fleet",
+            "odometer"
+          ],
+          "section": "fleet"
+        }
+      ]
+    }
+  },
+  "modules": [
+    {
+      "name": "serviceHistory",
+      "label": "Service history",
+      "description": "Workshop service records per car, with due-for-service tracking",
+      "server": true,
+      "web": true
+    },
+    {
+      "name": "fleet",
+      "label": "Fleet",
+      "description": "Fleet numbers, depots and rental status, with odometer rules",
+      "server": true,
+      "web": true
+    }
+  ]
+}

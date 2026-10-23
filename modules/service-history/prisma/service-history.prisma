@@ -1,0 +1,13 @@
+// Module-owned model. Its back-relation on Car comes from `prismaFields` in cde.module.ts.
+model ServiceRecord {
+  id          String   @id @default(uuid()) @db.Uuid
+  carId       String   @db.Uuid
+  car         Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+  date        DateTime @db.Date
+  mileage     Int?
+  description String
+  cost        Decimal? @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+
+  @@index([carId, date])
+}

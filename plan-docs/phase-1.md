@@ -8,7 +8,17 @@ Decisions so far:
 - **Hybrid storage:** declared "simple" fields go in a JSONB `ext` column on the core tables; code modules can also ship their own Prisma models/tables.
 - **Express + Prisma**, TypeScript throughout. Zod for validation, `prisma-json-types-generator` for typing JSONB, and **Kysely via `prisma-extension-kysely`** for dynamic search SQL, which Prisma's query API handles poorly.
 - **Search uses Postgres only** (generated filters, `tsvector` full-text, `pg_trgm`).
-- **Monorepo** (Yarn 4 workspaces, `nodeLinker: node-modules` for Prisma/Playwright compatibility) with a `customers/` folder. **PrimeVue** for UI.
+- **Monorepo** (Yarn 1.22 workspaces) with a `customers/` folder. **PrimeVue** for UI.
+
+## Status (2026-10-20): all milestones done
+- Three installs are running and tested: `bare`, `acme` and `globex`. Vitest: 24 tests. Playwright: 6 for bare, 12 for acme, 10 for globex.
+- What changed from the plan below, and why, is in [docs/findings.md](../docs/findings.md). In short:
+  - Yarn 1.22 instead of Yarn 4. Testcontainers 11 instead of 12. PrimeVue 4.5 instead of 5. Prisma 7.10.
+  - The assembler emits `ext-types.ts` itself instead of using `prisma-json-types-generator`.
+  - Kysely runs on its own pool instead of through `prisma-extension-kysely`.
+  - Ext equality filters use JSONB containment with the GIN index instead of expression indexes, because Prisma treats expression indexes as drift.
+  - Tests build databases from `migrate diff --script` instead of `db push`.
+- Instructions for running the demo and the commands are in the [README](../README.md).
 
 ## Core idea: one contract, a metadata registry, assembled at build time
 Every extension is a **module**: an npm workspace package that default-exports a `defineModule({...})` manifest from `@cde/sdk`. A **customer** is just a config that lists the modules it uses plus its own local modules. At build time a small **assembler** script reads the customer config and:
@@ -95,7 +105,7 @@ defineModule({
   - **Contract tests:** the assembler validates manifests, and a snapshot of the generated registry per customer catches accidental changes.
 
 ## Build order (milestones)
-1. **Skeleton:** Yarn workspace (`.yarnrc.yml`, `packageManager` field via Corepack), TS config, `@cde/sdk` types, core-server with Prisma Customer/Car and plain CRUD, compose with postgres. Bare customer `customers/_bare`. Test harness in place from day one: Vitest + Testcontainers integration test, and Playwright `globalSetup` against the compose stack with a first CRUD e2e spec.
+1. **Skeleton:** Yarn workspace, TS config, `@cde/sdk` types, core-server with Prisma Customer/Car and plain CRUD, compose with postgres. Bare customer `customers/bare`. Test harness in place from day one: Vitest + Testcontainers integration test, and Playwright `globalSetup` against the compose stack with a first CRUD e2e spec.
 2. **Registry and JSONB ext:** `defineModule` with declarative fields, assembler v1 (registry + server index), Zod validation, the `loyalty` module, and `acme` using it.
 3. **Metadata UI:** core-web with `/api/meta`-driven list, form and detail. Ext fields appear automatically.
 4. **Search:** Kysely search builder over core and ext fields, full-text vector trigger, filter panel.

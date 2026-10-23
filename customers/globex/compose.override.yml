@@ -1,0 +1,12 @@
+# Globex Rentals install.
+name: cde-globex
+services:
+  db:
+    ports: ["${DB_PORT:-5434}:5432"]
+  migrate:
+    build: { args: { CUSTOMER: globex } }
+    image: cde/globex:latest
+  app:
+    build: { args: { CUSTOMER: globex } }
+    image: cde/globex:latest
+    ports: ["${APP_PORT:-8082}:3000"]

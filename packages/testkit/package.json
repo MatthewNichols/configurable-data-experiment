@@ -1,0 +1,16 @@
+{
+  "name": "@cde/testkit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./e2e": "./src/e2e.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@cde/assembler": "0.0.0",
+    "@cde/sdk": "0.0.0",
+    "@testcontainers/postgresql": "11.14.0"
+  }
+}

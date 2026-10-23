@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  unit-and-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: yarn }
+      - run: yarn install --frozen-lockfile
+      - run: yarn cde check # every customer config assembles
+      - run: yarn typecheck
+      - run: yarn test # Vitest; Testcontainers uses the runner's Docker
+
+  # A core change is verified against every install.
+  install:
+    needs: unit-and-integration
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        customer: [bare, acme, globex]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: yarn }
+      - run: yarn install --frozen-lockfile
+      - run: yarn cde migrate-check ${{ matrix.customer }} # committed migrations match the assembled schema
+      - run: npx playwright install --with-deps chromium
+      - run: yarn test:e2e ${{ matrix.customer }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-${{ matrix.customer }}
+          path: |
+            playwright-report/${{ matrix.customer }}
+            test-results/${{ matrix.customer }}

@@ -1,0 +1,245 @@
+{
+  "customer": {
+    "name": "bare",
+    "title": "CDE Core",
+    "tagline": "Standard data only — no modules",
+    "theme": {
+      "primary": "indigo",
+      "surface": "slate"
+    }
+  },
+  "entityOrder": [
+    "Customer",
+    "Car"
+  ],
+  "entities": {
+    "Customer": {
+      "name": "Customer",
+      "label": "Customer",
+      "pluralLabel": "Customers",
+      "path": "customers",
+      "table": "Customer",
+      "delegate": "customer",
+      "titleFields": [
+        "firstName",
+        "lastName"
+      ],
+      "sections": [
+        {
+          "key": "core",
+          "label": "Details"
+        }
+      ],
+      "filters": [],
+      "fields": [
+        {
+          "type": "string",
+          "label": "First name",
+          "required": true,
+          "list": true,
+          "key": "firstName",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "firstName",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Last name",
+          "required": true,
+          "list": true,
+          "key": "lastName",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "lastName",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Email",
+          "list": true,
+          "key": "email",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "email",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Phone",
+          "key": "phone",
+          "searchable": [
+            "text"
+          ],
+          "operators": [],
+          "source": "core",
+          "column": "phone",
+          "section": "core"
+        },
+        {
+          "type": "text",
+          "label": "Notes",
+          "key": "notes",
+          "searchable": [
+            "text"
+          ],
+          "operators": [],
+          "source": "core",
+          "column": "notes",
+          "section": "core"
+        }
+      ]
+    },
+    "Car": {
+      "name": "Car",
+      "label": "Car",
+      "pluralLabel": "Cars",
+      "path": "cars",
+      "table": "Car",
+      "delegate": "car",
+      "titleFields": [
+        "year",
+        "make",
+        "model"
+      ],
+      "sections": [
+        {
+          "key": "core",
+          "label": "Details"
+        }
+      ],
+      "filters": [],
+      "fields": [
+        {
+          "type": "string",
+          "label": "VIN",
+          "required": true,
+          "maxLength": 17,
+          "list": true,
+          "key": "vin",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "vin",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Make",
+          "required": true,
+          "list": true,
+          "key": "make",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "make",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Model",
+          "required": true,
+          "list": true,
+          "key": "model",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "model",
+          "section": "core"
+        },
+        {
+          "type": "int",
+          "label": "Year",
+          "required": true,
+          "min": 1900,
+          "max": 2100,
+          "list": true,
+          "key": "year",
+          "searchable": [
+            "filter",
+            "range"
+          ],
+          "operators": [
+            "eq",
+            "gte",
+            "lte"
+          ],
+          "source": "core",
+          "column": "year",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Colour",
+          "key": "color",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "color",
+          "section": "core"
+        },
+        {
+          "type": "reference",
+          "ref": "Customer",
+          "label": "Owner",
+          "list": true,
+          "key": "customerId",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq"
+          ],
+          "source": "core",
+          "column": "customerId",
+          "section": "core"
+        }
+      ]
+    }
+  },
+  "modules": []
+}

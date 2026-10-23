@@ -1,0 +1,56 @@
+// Core schema. Requires the pg_trgm extension (created by the assembler's pre-migration SQL).
+// The assembler copies this into each customer's build together with
+// module fragments; lines marked `// @cde:extend <Model>` receive module-injected fields.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Customer {
+  id           String                   @id @default(uuid()) @db.Uuid
+  firstName    String
+  lastName     String
+  email        String?
+  phone        String?
+  notes        String?
+  /// Module data, namespaced by module: { "<module>": { "<field>": value } }
+  ext          Json                     @default("{}")
+  /// Maintained by a trigger generated from fields marked searchable: 'text'
+  searchVector Unsupported("tsvector")?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  cars         Car[]
+  // @cde:extend Customer
+
+  @@index([ext(ops: JsonbPathOps)], type: Gin)
+  @@index([searchVector], type: Gin)
+  @@index([firstName(ops: raw("gin_trgm_ops"))], type: Gin, map: "Customer_firstName_trgm_idx")
+  @@index([lastName(ops: raw("gin_trgm_ops"))], type: Gin, map: "Customer_lastName_trgm_idx")
+}
+
+model Car {
+  id           String                   @id @default(uuid()) @db.Uuid
+  vin          String                   @unique
+  make         String
+  model        String
+  year         Int
+  color        String?
+  customerId   String?                  @db.Uuid
+  customer     Customer?                @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  ext          Json                     @default("{}")
+  searchVector Unsupported("tsvector")?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  // @cde:extend Car
+
+  @@index([customerId])
+  @@index([ext(ops: JsonbPathOps)], type: Gin)
+  @@index([searchVector], type: Gin)
+  @@index([make(ops: raw("gin_trgm_ops"))], type: Gin, map: "Car_make_trgm_idx")
+  @@index([model(ops: raw("gin_trgm_ops"))], type: Gin, map: "Car_model_trgm_idx")
+}

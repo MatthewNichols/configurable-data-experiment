@@ -1,0 +1,44 @@
+# Shared shape of every install. Combine with a customer override:
+#   docker compose -f docker/compose.base.yml -f customers/acme/compose.override.yml up --build
+x-app: &app
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  environment:
+    DATABASE_URL: postgresql://cde:cde@db:5432/cde
+    PORT: "3000"
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: cde
+      POSTGRES_PASSWORD: cde
+      POSTGRES_DB: cde
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cde -d cde"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    <<: *app
+    command: ["sh", "docker/migrate.sh"]
+    depends_on:
+      db: { condition: service_healthy }
+
+  app:
+    <<: *app
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+    restart: unless-stopped
+
+volumes:
+  db-data:

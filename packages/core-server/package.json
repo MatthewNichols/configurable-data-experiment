@@ -1,0 +1,26 @@
+{
+  "name": "@cde/core-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./core-entities": "./src/meta/core-entities.ts",
+    "./prisma/core.prisma": "./prisma/core.prisma",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@cde/sdk": "0.0.0",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "express": "5.3.0",
+    "kysely": "0.28.18",
+    "pg": "8.23.1",
+    "prisma": "7.10.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/pg": "^8.15.0"
+  }
+}

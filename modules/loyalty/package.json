@@ -1,0 +1,9 @@
+{
+  "name": "@cde-module/loyalty",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Declarative-only module: loyalty fields on Customer. No code.",
+  "exports": { ".": "./cde.module.ts", "./package.json": "./package.json" },
+  "dependencies": { "@cde/sdk": "0.0.0" }
+}

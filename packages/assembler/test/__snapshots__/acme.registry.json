@@ -1,0 +1,545 @@
+{
+  "customer": {
+    "name": "acme",
+    "title": "Acme Motors",
+    "tagline": "Dealership CRM",
+    "theme": {
+      "primary": "emerald",
+      "surface": "slate"
+    }
+  },
+  "entityOrder": [
+    "Customer",
+    "Car"
+  ],
+  "entities": {
+    "Customer": {
+      "name": "Customer",
+      "label": "Customer",
+      "pluralLabel": "Customers",
+      "path": "customers",
+      "table": "Customer",
+      "delegate": "customer",
+      "titleFields": [
+        "firstName",
+        "lastName"
+      ],
+      "sections": [
+        {
+          "key": "core",
+          "label": "Details"
+        },
+        {
+          "key": "loyalty",
+          "label": "Loyalty",
+          "module": "loyalty"
+        },
+        {
+          "key": "sales",
+          "label": "Sales",
+          "module": "sales"
+        }
+      ],
+      "filters": [],
+      "fields": [
+        {
+          "type": "string",
+          "label": "First name",
+          "required": true,
+          "list": true,
+          "key": "firstName",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "firstName",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Last name",
+          "required": true,
+          "list": true,
+          "key": "lastName",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "lastName",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Email",
+          "list": true,
+          "key": "email",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "email",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Phone",
+          "key": "phone",
+          "searchable": [
+            "text"
+          ],
+          "operators": [],
+          "source": "core",
+          "column": "phone",
+          "section": "core"
+        },
+        {
+          "type": "text",
+          "label": "Notes",
+          "key": "notes",
+          "searchable": [
+            "text"
+          ],
+          "operators": [],
+          "source": "core",
+          "column": "notes",
+          "section": "core"
+        },
+        {
+          "type": "enum",
+          "values": [
+            "bronze",
+            "silver",
+            "gold",
+            "platinum"
+          ],
+          "label": "Tier",
+          "list": true,
+          "key": "loyalty.tier",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "in"
+          ],
+          "source": "ext",
+          "module": "loyalty",
+          "path": [
+            "loyalty",
+            "tier"
+          ],
+          "section": "loyalty"
+        },
+        {
+          "type": "int",
+          "min": 0,
+          "label": "Points",
+          "list": true,
+          "key": "loyalty.points",
+          "searchable": [
+            "range"
+          ],
+          "operators": [
+            "gte",
+            "lte"
+          ],
+          "source": "ext",
+          "module": "loyalty",
+          "path": [
+            "loyalty",
+            "points"
+          ],
+          "section": "loyalty"
+        },
+        {
+          "type": "date",
+          "label": "Member since",
+          "key": "loyalty.memberSince",
+          "searchable": [
+            "range"
+          ],
+          "operators": [
+            "gte",
+            "lte"
+          ],
+          "source": "ext",
+          "module": "loyalty",
+          "path": [
+            "loyalty",
+            "memberSince"
+          ],
+          "section": "loyalty"
+        },
+        {
+          "type": "bool",
+          "label": "Marketing opt-in",
+          "key": "loyalty.marketingOptIn",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq"
+          ],
+          "source": "ext",
+          "module": "loyalty",
+          "path": [
+            "loyalty",
+            "marketingOptIn"
+          ],
+          "section": "loyalty"
+        },
+        {
+          "type": "string",
+          "label": "Sales rep",
+          "key": "sales.salesRep",
+          "searchable": [
+            "filter",
+            "text"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "ext",
+          "module": "sales",
+          "path": [
+            "sales",
+            "salesRep"
+          ],
+          "section": "sales"
+        },
+        {
+          "type": "enum",
+          "values": [
+            "email",
+            "phone",
+            "sms"
+          ],
+          "label": "Preferred contact",
+          "key": "sales.preferredContact",
+          "searchable": [],
+          "operators": [],
+          "source": "ext",
+          "module": "sales",
+          "path": [
+            "sales",
+            "preferredContact"
+          ],
+          "section": "sales"
+        }
+      ]
+    },
+    "Car": {
+      "name": "Car",
+      "label": "Car",
+      "pluralLabel": "Cars",
+      "path": "cars",
+      "table": "Car",
+      "delegate": "car",
+      "titleFields": [
+        "year",
+        "make",
+        "model"
+      ],
+      "sections": [
+        {
+          "key": "core",
+          "label": "Details"
+        },
+        {
+          "key": "serviceHistory",
+          "label": "Service history",
+          "module": "serviceHistory"
+        },
+        {
+          "key": "sales",
+          "label": "Sales",
+          "module": "sales"
+        }
+      ],
+      "filters": [
+        {
+          "type": "bool",
+          "label": "Service due",
+          "key": "serviceHistory.serviceDue",
+          "module": "serviceHistory"
+        }
+      ],
+      "fields": [
+        {
+          "type": "string",
+          "label": "VIN",
+          "required": true,
+          "maxLength": 17,
+          "list": true,
+          "key": "vin",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "vin",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Make",
+          "required": true,
+          "list": true,
+          "key": "make",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "make",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Model",
+          "required": true,
+          "list": true,
+          "key": "model",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "model",
+          "section": "core"
+        },
+        {
+          "type": "int",
+          "label": "Year",
+          "required": true,
+          "min": 1900,
+          "max": 2100,
+          "list": true,
+          "key": "year",
+          "searchable": [
+            "filter",
+            "range"
+          ],
+          "operators": [
+            "eq",
+            "gte",
+            "lte"
+          ],
+          "source": "core",
+          "column": "year",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Colour",
+          "key": "color",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "color",
+          "section": "core"
+        },
+        {
+          "type": "reference",
+          "ref": "Customer",
+          "label": "Owner",
+          "list": true,
+          "key": "customerId",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq"
+          ],
+          "source": "core",
+          "column": "customerId",
+          "section": "core"
+        },
+        {
+          "type": "int",
+          "min": 1,
+          "max": 36,
+          "label": "Service interval (months)",
+          "example": 12,
+          "key": "serviceHistory.intervalMonths",
+          "searchable": [],
+          "operators": [],
+          "source": "ext",
+          "module": "serviceHistory",
+          "path": [
+            "serviceHistory",
+            "intervalMonths"
+          ],
+          "section": "serviceHistory"
+        },
+        {
+          "type": "date",
+          "label": "Last service",
+          "list": true,
+          "key": "serviceHistory.lastServiceDate",
+          "searchable": [],
+          "operators": [],
+          "source": "computed",
+          "module": "serviceHistory",
+          "path": [
+            "serviceHistory",
+            "lastServiceDate"
+          ],
+          "section": "serviceHistory",
+          "readOnly": true
+        },
+        {
+          "type": "int",
+          "label": "Services",
+          "key": "serviceHistory.serviceCount",
+          "searchable": [],
+          "operators": [],
+          "source": "computed",
+          "module": "serviceHistory",
+          "path": [
+            "serviceHistory",
+            "serviceCount"
+          ],
+          "section": "serviceHistory",
+          "readOnly": true
+        },
+        {
+          "type": "bool",
+          "label": "Service due",
+          "key": "serviceHistory.due",
+          "searchable": [],
+          "operators": [],
+          "source": "computed",
+          "module": "serviceHistory",
+          "path": [
+            "serviceHistory",
+            "due"
+          ],
+          "section": "serviceHistory",
+          "readOnly": true
+        },
+        {
+          "type": "decimal",
+          "min": 0,
+          "label": "List price",
+          "list": true,
+          "example": 18995,
+          "key": "sales.listPrice",
+          "searchable": [
+            "range"
+          ],
+          "operators": [
+            "gte",
+            "lte"
+          ],
+          "source": "ext",
+          "module": "sales",
+          "path": [
+            "sales",
+            "listPrice"
+          ],
+          "section": "sales"
+        },
+        {
+          "type": "enum",
+          "values": [
+            "new",
+            "used",
+            "certified"
+          ],
+          "label": "Condition",
+          "list": true,
+          "key": "sales.condition",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "in"
+          ],
+          "source": "ext",
+          "module": "sales",
+          "path": [
+            "sales",
+            "condition"
+          ],
+          "section": "sales"
+        },
+        {
+          "type": "bool",
+          "label": "On the lot",
+          "key": "sales.onLot",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq"
+          ],
+          "source": "ext",
+          "module": "sales",
+          "path": [
+            "sales",
+            "onLot"
+          ],
+          "section": "sales"
+        }
+      ]
+    }
+  },
+  "modules": [
+    {
+      "name": "loyalty",
+      "label": "Loyalty",
+      "description": "Loyalty programme membership for customers",
+      "server": false,
+      "web": false
+    },
+    {
+      "name": "serviceHistory",
+      "label": "Service history",
+      "description": "Workshop service records per car, with due-for-service tracking",
+      "server": true,
+      "web": true
+    },
+    {
+      "name": "sales",
+      "label": "Sales",
+      "description": "Acme-specific pricing and sales-rep data",
+      "server": false,
+      "web": true
+    }
+  ]
+}

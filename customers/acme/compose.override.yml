@@ -1,0 +1,12 @@
+# Acme Motors install. Ports are chosen so several customer stacks can run side by side.
+name: cde-acme
+services:
+  db:
+    ports: ["${DB_PORT:-5433}:5432"]
+  migrate:
+    build: { args: { CUSTOMER: acme } }
+    image: cde/acme:latest
+  app:
+    build: { args: { CUSTOMER: acme } }
+    image: cde/acme:latest
+    ports: ["${APP_PORT:-8081}:3000"]

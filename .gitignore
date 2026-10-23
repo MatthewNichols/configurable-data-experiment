@@ -147,3 +147,11 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# configurable-data-experiment
+.cde/
+web-dist/
+test-results/
+playwright-report/
+.yarn/
+.cde-test/

@@ -1,0 +1,12 @@
+# Core-only install.
+name: cde-bare
+services:
+  db:
+    ports: ["${DB_PORT:-5435}:5432"]
+  migrate:
+    build: { args: { CUSTOMER: bare } }
+    image: cde/bare:latest
+  app:
+    build: { args: { CUSTOMER: bare } }
+    image: cde/bare:latest
+    ports: ["${APP_PORT:-8083}:3000"]
