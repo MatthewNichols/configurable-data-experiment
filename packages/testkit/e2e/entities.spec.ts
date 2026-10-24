@@ -86,6 +86,32 @@ for (const name of registry.entityOrder) {
       expect((await page.request.get(`/api/${entity.path}/${id}`)).status()).toBe(404);
     });
 
+    test('column chooser adds, reorders and resets list columns', async ({ page }) => {
+      const hidden = entity.fields.find((f) => !f.list);
+      test.skip(!hidden, 'every field is already a column');
+      const headers = page.locator('thead th');
+
+      await page.goto(`/${entity.path}`);
+      await page.getByTestId('btn-columns').click();
+      const chooser = page.getByTestId('column-chooser');
+      // add: pick from "Available" (right) and move to "Shown" (left), then move it to the top
+      await chooser.getByTestId(`column-option-${hidden!.key}`).click();
+      await chooser.getByRole('button', { name: /move to source/i }).first().click();
+      await chooser.getByTestId(`column-option-${hidden!.key}`).click();
+      await chooser.getByRole('button', { name: /move top/i }).click();
+      await page.getByTestId('columns-apply').click();
+      await expect(headers.first()).toContainText(hidden!.label);
+
+      // survives a reload
+      await page.reload();
+      await expect(headers.first()).toContainText(hidden!.label);
+
+      await page.getByTestId('btn-columns').click();
+      await page.getByTestId('columns-reset').click();
+      await page.getByTestId('columns-apply').click();
+      await expect(headers.filter({ hasText: hidden!.label })).toHaveCount(0);
+    });
+
     test('client-side validation blocks an empty form', async ({ page }) => {
       await page.goto(`/${entity.path}/new`);
       await page.getByTestId('btn-save').click();
