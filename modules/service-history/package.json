@@ -4,7 +4,16 @@
   "private": true,
   "type": "module",
   "description": "Code module: service records table, API, computed fields, a search filter and UI.",
-  "exports": { ".": "./cde.module.ts", "./package.json": "./package.json" },
-  "dependencies": { "@cde/sdk": "0.0.0" },
-  "peerDependencies": { "vue": "^3.5.0", "primevue": "^4.5.0", "kysely": "^0.28.0" }
+  "exports": {
+    ".": "./cde.module.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@cde/sdk": "0.0.0"
+  },
+  "peerDependencies": {
+    "kysely": "^0.28.0",
+    "primevue": "^4.5.0",
+    "vue": "^3.5.0"
+  }
 }

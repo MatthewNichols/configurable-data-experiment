@@ -9,9 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: corepack enable # Yarn version comes from package.json "packageManager"
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: yarn }
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
       - run: yarn cde check # every customer config assembles
       - run: yarn typecheck
       - run: yarn test # Vitest; Testcontainers uses the runner's Docker
@@ -26,9 +27,10 @@ jobs:
         customer: [bare, acme, globex]
     steps:
       - uses: actions/checkout@v4
+      - run: corepack enable # Yarn version comes from package.json "packageManager"
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: yarn }
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
       - run: yarn cde migrate-check ${{ matrix.customer }} # committed migrations match the assembled schema
       - run: npx playwright install --with-deps chromium
       - run: yarn test:e2e ${{ matrix.customer }}
