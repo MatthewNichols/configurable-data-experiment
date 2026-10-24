@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "bin": { "cde": "./src/cli.ts" },
+  "bin": {
+    "cde": "./src/cli.ts"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./vite": "./src/vite.ts",
