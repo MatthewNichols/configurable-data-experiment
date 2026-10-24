@@ -11,6 +11,8 @@ import InputIcon from 'primevue/inputicon';
 import { apiFetch } from '@cde/sdk/web';
 import { recordTitle, type EntityRecord, type RegistryEntity, type RegistryField } from '@cde/sdk';
 import FieldDisplay from './FieldDisplay.vue';
+import ColumnChooser from './ColumnChooser.vue';
+import { listColumns } from '../lib/columns.ts';
 import { useCde } from '../lib/context.ts';
 import { rememberTitle } from '../lib/refs.ts';
 
@@ -30,10 +32,8 @@ const total = ref(0);
 const loading = ref(false);
 const pageSize = 10;
 
-const columns = computed(() => {
-  const listed = props.entity.fields.filter((f) => f.list);
-  return (listed.length ? listed : props.entity.fields.slice(0, 4)).filter((f) => !props.fixedFilter?.[`filter[${f.key}]`]);
-});
+const columns = computed(() => listColumns(registry.customer.name, props.entity).filter((f) => !props.fixedFilter?.[`filter[${f.key}]`]));
+const choosingColumns = ref(false);
 
 interface Control {
   key: string;
@@ -180,7 +180,11 @@ const first = computed(() => (Number(state.page || 1) - 1) * pageSize);
           </template>
         </Column>
       </DataTable>
-      <div class="muted" style="padding: 0.5rem 1rem; font-size: 0.8rem" data-testid="total">{{ total }} {{ total === 1 ? entity.label.toLowerCase() : entity.pluralLabel.toLowerCase() }}</div>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.25rem 0.5rem 0.25rem 1rem">
+        <span class="muted" style="font-size: 0.8rem" data-testid="total">{{ total }} {{ total === 1 ? entity.label.toLowerCase() : entity.pluralLabel.toLowerCase() }}</span>
+        <Button label="Columns" icon="pi pi-table" size="small" severity="secondary" text @click="choosingColumns = true" data-testid="btn-columns" />
+      </div>
     </div>
+    <ColumnChooser v-model:visible="choosingColumns" :entity="entity" />
   </div>
 </template>
