@@ -75,6 +75,36 @@ A customer's own module can even restyle a field that belongs to a *shared* modu
 - **One Docker image and Compose stack per customer**, from a single `Dockerfile` with `ARG CUSTOMER`.
 - **Theming** comes from PrimeVue presets, with primary and surface palettes set per customer.
 
+## Small enough for a modest server
+
+Each customer stack is one Postgres container and one Node container. Each stack is independent, so you can
+run several customers side by side on one box, and each one adds only its own small footprint.
+
+- **Compiled at build time.** `cde build --bundle` compiles the server and all workspace code (core, modules,
+  customer code and the generated Prisma client) into a single plain-JS file. The image runs it with `node`,
+  so no TypeScript tooling runs in production.
+- **A small runtime footprint.** Compiling to plain JS halved the app's memory compared with running it
+  through `tsx`. An idle acme stack uses about 42 MB for the app and 22 MB for Postgres.
+- **Nothing runs in the background.** The migrate-and-seed step runs once and exits. After that, the app just
+  serves the prebuilt web bundle and the API.
+
+## Encrypted backups built in
+
+```bash
+yarn cde dump acme | age -r age1... > acme-$(date -u +%F).dump.age
+```
+
+- **`cde dump`** runs `pg_dump` inside the customer's own db container. You don't need Postgres tools on the
+  host, and the client version always matches the server.
+- **The dump streams to stdout**, so you can pipe it straight into `age` or `gpg`. Unencrypted data never
+  touches the disk.
+- **Or save it to a file with `--out`.** The file is owner-only and is written atomically, so a failed dump
+  never leaves a truncated file that looks like a good backup.
+- **Choose the format.** The default compressed format restores with `pg_restore`; `--format plain` gives you
+  readable SQL.
+- [recipes/BACKUPS.md](recipes/BACKUPS.md) covers scheduled, key-pair-encrypted, off-site backups and how to
+  test a restore.
+
 ## A UI generated from metadata, not hand-written per entity
 
 The Vue app reads `GET /api/meta` at runtime and builds the dashboard, the list grids, the filter bar, the
@@ -95,6 +125,9 @@ forms and the detail pages from it.
 - **Module specs travel with the module**, so a module's e2e tests run for every install that uses it.
 - **Testcontainers** gives you real Postgres for integration tests. No local database is needed.
 - **E2E runs on an isolated compose project** on offset ports, so your demo stacks are never touched.
+- **Production-path checks.** `yarn test:docker` compiles every customer's server, migrates and seeds a
+  database, and serves the API on plain `node`. It also checks that `cde dump` streams a clean dump that
+  restores to identical data.
 - **CI** runs a matrix over the customers, with migration drift checks and e2e.
 
 ## Developer experience
@@ -104,7 +137,8 @@ yarn cde up acme          # build + run a customer stack
 yarn dev acme             # Postgres in Docker, API with tsx watch, Vite with hot reload
 yarn cde migrate acme --name add-thing
 yarn cde migrate-check acme
-yarn test && yarn test:e2e acme
+yarn cde dump acme --out acme.dump
+yarn test && yarn test:docker && yarn test:e2e acme
 ```
 
 The stack is TypeScript from end to end: Express 5, Prisma 7, Kysely, Vue 3, PrimeVue 4 and Vite.

@@ -10,6 +10,7 @@
     "cde": "tsx packages/assembler/src/cli.ts",
     "dev": "tsx packages/assembler/src/cli.ts dev",
     "test": "vitest run",
+    "test:docker": "vitest run --config vitest.docker.config.ts",
     "test:e2e": "tsx packages/assembler/src/cli.ts e2e",
     "typecheck": "tsc --noEmit -p tsconfig.json && vue-tsc --noEmit -p packages/core-web/tsconfig.json"
   },

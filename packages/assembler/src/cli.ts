@@ -1,9 +1,10 @@
 #!/usr/bin/env tsx
 import { spawn, spawnSync } from 'node:child_process';
-import { readdirSync, existsSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readdirSync, renameSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { buildCustomer } from './build.ts';
-import { compose, customerPorts } from './compose.ts';
+import { bundleServer } from './bundle.ts';
+import { compose, composeToFd, customerPorts } from './compose.ts';
 import { customersDir, repoRoot } from './paths.ts';
 import { createMigration, generateClient, prisma } from './prisma.ts';
 import { AssemblyError } from './registry.ts';
@@ -29,6 +30,9 @@ function need() {
   return customer;
 }
 
+/** compose target for up/down/dump; --project picks a stack other than the default cde-<customer> (tests use this) */
+const target = () => ({ customer: need(), project: flags.get('project') as string | undefined });
+
 function run(bin: string, args: string[], env: Record<string, string> = {}) {
   const res = spawnSync(bin, args, { stdio: 'inherit', cwd: repoRoot, env: { ...process.env, ...env } });
   if (res.status !== 0) process.exit(res.status ?? 1);
@@ -48,9 +52,10 @@ function webBuild(name: string) {
 }
 
 const commands: Record<string, () => Promise<void>> = {
-  /** assemble generated sources + Prisma client */
+  /** assemble generated sources + Prisma client (--bundle: compile server to JS, --web: Vite bundle) */
   async build() {
-    await build(need());
+    const b = await build(need());
+    if (flags.has('bundle')) console.log(`✔ bundled server → ${path.relative(repoRoot, await bundleServer(b))}`);
     if (flags.has('web')) webBuild(need());
   },
   /** validate every customer config (fast, no codegen side effects beyond .cde/) */
@@ -87,12 +92,47 @@ const commands: Record<string, () => Promise<void>> = {
   },
   /** run the customer's full stack in Docker */
   async up() {
-    compose({ customer: need() }, ['up', '--build', '-d', '--wait']);
+    compose(target(), ['up', '--build', '-d', '--wait']);
     const { appPort } = customerPorts(need());
     console.log(`✔ ${need()} running at http://localhost:${appPort}`);
   },
   async down() {
-    compose({ customer: need() }, flags.has('volumes') ? ['down', '-v'] : ['down']);
+    compose(target(), flags.has('volumes') ? ['down', '-v'] : ['down']);
+  },
+  /**
+   * pg_dump of the customer's running database, executed inside its db container (no host client needed).
+   * Streams to stdout (pipe it into age/gpg) unless --out <file>; --format custom (default, for pg_restore) | plain (SQL).
+   */
+  async dump() {
+    const name = need();
+    const format = (flags.get('format') as string) ?? 'custom';
+    if (format !== 'custom' && format !== 'plain') throw new Error('--format must be custom or plain');
+    const out = flags.get('out');
+    if (out === true) throw new Error('--out needs a file path');
+    if (!out && process.stdout.isTTY) throw new Error('Refusing to write a dump to the terminal: pipe it somewhere or use --out <file>');
+
+    const args = ['exec', '-T', 'db', 'sh', '-c', `pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=${format}`];
+    if (!out) {
+      const status = composeToFd(target(), args, 1);
+      if (status !== 0) throw new Error(`pg_dump failed (exit ${status}); is the ${name} stack running?`);
+      return;
+    }
+    // write to a temp file and rename, so a failed dump never leaves a truncated file behind
+    const file = path.resolve(out);
+    const tmp = `${file}.partial`;
+    const fd = openSync(tmp, 'w', 0o600);
+    let status: number;
+    try {
+      status = composeToFd(target(), args, fd);
+    } finally {
+      closeSync(fd);
+    }
+    if (status !== 0) {
+      rmSync(tmp, { force: true });
+      throw new Error(`pg_dump failed (exit ${status}); is the ${name} stack running?`);
+    }
+    renameSync(tmp, file);
+    console.error(`✔ dumped ${name} → ${file}`);
   },
   /** local dev: Postgres from compose, API with tsx watch, Vite dev server with HMR */
   async dev() {
