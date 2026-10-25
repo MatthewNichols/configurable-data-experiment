@@ -10,7 +10,8 @@
   },
   "entityOrder": [
     "Customer",
-    "Car"
+    "Car",
+    "Garage"
   ],
   "entities": {
     "Customer": {
@@ -24,6 +25,7 @@
         "firstName",
         "lastName"
       ],
+      "icon": "pi pi-users",
       "sections": [
         {
           "key": "core",
@@ -168,6 +170,7 @@
         "make",
         "model"
       ],
+      "icon": "pi pi-car",
       "sections": [
         {
           "key": "core",
@@ -456,6 +459,124 @@
             "odometer"
           ],
           "section": "fleet"
+        },
+        {
+          "type": "reference",
+          "ref": "Garage",
+          "label": "Garage",
+          "list": true,
+          "key": "fleet.garage",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq"
+          ],
+          "source": "ext",
+          "module": "fleet",
+          "path": [
+            "fleet",
+            "garage"
+          ],
+          "section": "fleet"
+        }
+      ]
+    },
+    "Garage": {
+      "name": "Garage",
+      "label": "Garage",
+      "pluralLabel": "Garages",
+      "path": "garages",
+      "table": "Garage",
+      "delegate": "garage",
+      "titleFields": [
+        "name"
+      ],
+      "icon": "pi pi-building",
+      "module": "fleet",
+      "sections": [
+        {
+          "key": "core",
+          "label": "Details"
+        }
+      ],
+      "filters": [],
+      "fields": [
+        {
+          "type": "string",
+          "label": "Name",
+          "required": true,
+          "list": true,
+          "key": "name",
+          "searchable": [
+            "text",
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "like"
+          ],
+          "source": "core",
+          "column": "name",
+          "section": "core"
+        },
+        {
+          "type": "enum",
+          "values": [
+            "north",
+            "south",
+            "airport"
+          ],
+          "label": "Depot",
+          "required": true,
+          "list": true,
+          "key": "depot",
+          "searchable": [
+            "filter"
+          ],
+          "operators": [
+            "eq",
+            "in"
+          ],
+          "source": "core",
+          "column": "depot",
+          "section": "core"
+        },
+        {
+          "type": "int",
+          "min": 1,
+          "max": 50,
+          "label": "Bays",
+          "required": true,
+          "list": true,
+          "key": "bays",
+          "searchable": [],
+          "operators": [],
+          "source": "core",
+          "column": "bays",
+          "section": "core"
+        },
+        {
+          "type": "text",
+          "label": "Address",
+          "key": "address",
+          "searchable": [
+            "text"
+          ],
+          "operators": [],
+          "source": "core",
+          "column": "address",
+          "section": "core"
+        },
+        {
+          "type": "string",
+          "label": "Phone",
+          "key": "phone",
+          "searchable": [],
+          "operators": [],
+          "source": "core",
+          "column": "phone",
+          "section": "core"
         }
       ]
     }
@@ -471,7 +592,7 @@
     {
       "name": "fleet",
       "label": "Fleet",
-      "description": "Fleet numbers, depots and rental status, with odometer rules",
+      "description": "Fleet numbers, depots, garages and rental status, with odometer rules",
       "server": true,
       "web": true
     }

@@ -44,3 +44,27 @@ test('odometer cannot go backwards', async ({ page, request }) => {
   await page.getByTestId('btn-save').click();
   await expect(page.getByTestId('error-fleet.odometer')).toContainText('cannot go backwards');
 });
+
+test('garage detail is the fleet module page: occupancy, its cars only, guarded delete', async ({ page, request }) => {
+  const garage = await apiCreate(request, registry.entities.Garage, { name: 'E2E yard', depot: 'south', bays: 2 });
+  const parked = await apiCreate(request, registry.entities.Car, sampleInput(registry.entities.Car, { Garage: garage.id }));
+  await apiCreate(request, registry.entities.Car, sampleInput(registry.entities.Car)); // no garage
+
+  await page.goto(`/garages/${garage.id}`);
+  await expect(page.getByTestId('record-title')).toHaveText('E2E yard');
+  await expect(page.getByTestId('occupancy-cars')).toHaveText('1');
+  await expect(page.getByTestId('occupancy-free')).toHaveText('1 free');
+  const cars = page.getByTestId('entity-table-Car');
+  await expect(cars.locator('tbody tr')).toHaveCount(1);
+  await expect(cars.locator('tbody tr')).toContainText(parked.vin as string);
+
+  await page.getByTestId('btn-delete').click();
+  await page.getByRole('button', { name: 'Delete', exact: true }).last().click();
+  await expect(page.getByText('E2E yard still has 1 car assigned')).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/garages/${garage.id}$`));
+
+  // other entities keep the generic detail page
+  await page.goto(`/cars/${parked.id}`);
+  await expect(page.getByTestId('section-fleet')).toBeVisible();
+  await expect(page.getByTestId('detail-fleet.garage')).toContainText('E2E yard');
+});
