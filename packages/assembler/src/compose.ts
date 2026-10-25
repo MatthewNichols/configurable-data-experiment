@@ -27,6 +27,16 @@ export function compose(target: ComposeTarget, args: string[], stdio: 'inherit' 
   return res.stdout;
 }
 
+/** Like `compose`, but the command's stdout goes straight to `fd` (a file or the CLI's own stdout) — nothing is buffered. */
+export function composeToFd(target: ComposeTarget, args: string[], fd: number): number {
+  const res = spawnSync('docker', [...composeArgs(target), ...args], {
+    stdio: ['ignore', fd, 'inherit'],
+    cwd: repoRoot,
+    env: { ...process.env, CUSTOMER: target.customer, ...target.env },
+  });
+  return res.status ?? 1;
+}
+
 /** Reads `x-cde: { appPort, dbPort }` from the customer's compose override. */
 export function customerPorts(customer: string): { appPort: number; dbPort: number } {
   const text = readFileSync(path.join(customerDir(customer), 'compose.override.yml'), 'utf8');

@@ -95,6 +95,7 @@ When a core or module schema changes, run `yarn cde migrate <customer> --name <c
 | `yarn cde migrate <c> --name x` | new migration from the assembled schema (throwaway Postgres via Testcontainers) |
 | `yarn cde migrate-check <c>` | fail on schema/migration drift |
 | `yarn cde up/down <c>` | Docker Compose stack |
+| `yarn cde dump <c> [--out <file>] [--format custom\|plain]` | `pg_dump` of the running stack's database, run inside its db container; streams to stdout unless `--out` — see [recipes/BACKUPS.md](recipes/BACKUPS.md) for encrypted backups |
 | `yarn dev <c>` | Postgres in compose + API (tsx watch) on :3000 + Vite dev server on :5173 |
 | `yarn test` | Vitest: unit + integration (Testcontainers Postgres per suite) |
 | `yarn test:bundle` | every customer's server compiled with `--bundle`, migrated, seeded and served on plain `node` |
