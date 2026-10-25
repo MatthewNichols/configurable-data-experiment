@@ -3,6 +3,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { buildCustomer } from './build.ts';
+import { bundleServer } from './bundle.ts';
 import { compose, customerPorts } from './compose.ts';
 import { customersDir, repoRoot } from './paths.ts';
 import { createMigration, generateClient, prisma } from './prisma.ts';
@@ -48,9 +49,10 @@ function webBuild(name: string) {
 }
 
 const commands: Record<string, () => Promise<void>> = {
-  /** assemble generated sources + Prisma client */
+  /** assemble generated sources + Prisma client (--bundle: compile server to JS, --web: Vite bundle) */
   async build() {
-    await build(need());
+    const b = await build(need());
+    if (flags.has('bundle')) console.log(`✔ bundled server → ${path.relative(repoRoot, await bundleServer(b))}`);
     if (flags.has('web')) webBuild(need());
   },
   /** validate every customer config (fast, no codegen side effects beyond .cde/) */

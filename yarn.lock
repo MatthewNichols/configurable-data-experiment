@@ -109,6 +109,7 @@ __metadata:
     "@cde/core-server": "npm:0.0.0"
     "@cde/sdk": "npm:0.0.0"
     "@testcontainers/postgresql": "npm:11.14.0"
+    esbuild: "npm:0.28.2"
     pg: "npm:8.23.1"
     testcontainers: "npm:11.14.0"
   bin:
@@ -2706,7 +2707,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:~0.28.0":
+"esbuild@npm:0.28.2, esbuild@npm:~0.28.0":
   version: 0.28.2
   resolution: "esbuild@npm:0.28.2"
   dependencies:

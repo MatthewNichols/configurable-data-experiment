@@ -49,6 +49,7 @@ docker/               Dockerfile (ARG CUSTOMER), compose.base.yml, migrate.sh
 - `extras.sql` — idempotent SQL Prisma can't express (full-text triggers, module views)
 - `server-modules.ts` / `web-modules.ts` — static imports of the modules' server / web entries
 - `install.ts` / `main.ts` — the install's entry points (serve, seed); `ext-types.ts` — TS types for ext data
+- `main.mjs` (with `--bundle`) — `main.ts` and all workspace code compiled to one JS file; the Docker image runs this on plain `node` (npm packages stay in `node_modules`)
 
 Nothing is discovered at runtime; each image is immutable and reproducible.
 
@@ -89,13 +90,14 @@ When a core or module schema changes, run `yarn cde migrate <customer> --name <c
 
 | Command | |
 | --- | --- |
-| `yarn cde build <c> [--web]` | assemble + Prisma client (+ web bundle) |
+| `yarn cde build <c> [--bundle] [--web]` | assemble + Prisma client (+ compiled server JS) (+ web bundle) |
 | `yarn cde check` | validate every customer config |
 | `yarn cde migrate <c> --name x` | new migration from the assembled schema (throwaway Postgres via Testcontainers) |
 | `yarn cde migrate-check <c>` | fail on schema/migration drift |
 | `yarn cde up/down <c>` | Docker Compose stack |
 | `yarn dev <c>` | Postgres in compose + API (tsx watch) on :3000 + Vite dev server on :5173 |
 | `yarn test` | Vitest: unit + integration (Testcontainers Postgres per suite) |
+| `yarn test:bundle` | every customer's server compiled with `--bundle`, migrated, seeded and served on plain `node` |
 | `yarn test:e2e <c>` | Playwright against a fresh `cde-e2e-<c>` compose stack (demo stacks untouched) |
 | `yarn typecheck` | tsc + vue-tsc |
 

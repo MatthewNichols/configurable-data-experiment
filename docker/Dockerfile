@@ -13,8 +13,8 @@ COPY . .
 ARG CUSTOMER
 RUN test -n "$CUSTOMER" || (echo "Build with --build-arg CUSTOMER=<name>" && exit 1)
 ENV CUSTOMER=$CUSTOMER NODE_ENV=production PORT=3000
-# assemble: registry, Prisma schema + client, module indexes, web bundle
-RUN yarn cde build "$CUSTOMER" --web
+# assemble: registry, Prisma schema + client, module indexes, server bundle (plain JS), web bundle
+RUN yarn cde build "$CUSTOMER" --bundle --web
 
 EXPOSE 3000
-CMD ["sh", "-c", "exec node_modules/.bin/tsx customers/$CUSTOMER/.cde/main.ts serve"]
+CMD ["sh", "-c", "exec node --enable-source-maps customers/$CUSTOMER/.cde/main.mjs serve"]
