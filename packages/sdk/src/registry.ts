@@ -38,6 +38,10 @@ export interface RegistryEntity {
   delegate: string;
   /** fields used to render a record title */
   titleFields: string[];
+  /** PrimeIcons class for the nav */
+  icon?: string;
+  /** module that declares this entity; absent for core entities */
+  module?: string;
   fields: RegistryField[];
   filters: RegistryFilter[];
   sections: RegistrySection[];

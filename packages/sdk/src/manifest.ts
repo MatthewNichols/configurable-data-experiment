@@ -1,6 +1,25 @@
 import type { FieldDef, FilterDef } from './fields.ts';
 
-/** How a module extends one core entity. */
+/**
+ * A whole entity: core entities use this, and modules may declare their own. Module entities
+ * get a generated table (columns from `fields`, plus `ext` / `searchVector`) and behave
+ * exactly like core ones: generic API, search, list/form/detail UI, and other modules can extend them.
+ */
+export interface EntityDef {
+  label: string;
+  /** defaults to `label + 's'` */
+  pluralLabel?: string;
+  /** URL segment; defaults to the plural label in kebab-case, e.g. 'garages' */
+  path?: string;
+  /** fields used to render a record title */
+  titleFields: string[];
+  /** PrimeIcons class for the nav, e.g. 'pi pi-building' */
+  icon?: string;
+  /** Stored as real columns (`source: 'core'` in the registry). */
+  fields: Record<string, FieldDef>;
+}
+
+/** How a module extends one entity (core or declared by another module). */
 export interface EntityExtension {
   /** Stored in the entity's JSONB `ext` column under `ext.<module>.<field>`. */
   fields?: Record<string, FieldDef>;
@@ -20,6 +39,8 @@ export interface ModuleManifest {
   name: string;
   label?: string;
   description?: string;
+  /** New entities owned by this module, keyed by PascalCase name, e.g. `Garage`. */
+  entities?: Record<string, EntityDef>;
   extends?: Record<string, EntityExtension>;
   /** Path (relative to the manifest) of a Prisma schema fragment with module-owned models. */
   prismaSchema?: string;
