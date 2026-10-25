@@ -3,11 +3,11 @@
   "include": [
     "packages/sdk/src", "packages/sdk/test",
     "packages/core-server/src", "packages/core-server/test",
-    "packages/assembler/src", "packages/assembler/test", "packages/assembler/bundle-test",
+    "packages/assembler/src", "packages/assembler/test", "packages/assembler/docker-test",
     "packages/testkit/src", "packages/testkit/e2e",
     "modules/*/cde.module.ts", "modules/*/src/server.ts", "modules/*/test", "modules/*/e2e",
     "customers/*/customer.config.ts", "customers/*/seed.ts", "customers/*/test", "customers/*/e2e",
     "customers/*/modules/*/cde.module.ts", "customers/*/modules/*/src/server.ts",
-    "playwright.config.ts", "vitest.config.ts", "vitest.bundle.config.ts"
+    "playwright.config.ts", "vitest.config.ts", "vitest.docker.config.ts"
   ]
 }

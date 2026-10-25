@@ -30,6 +30,9 @@ function need() {
   return customer;
 }
 
+/** compose target for up/down/dump; --project picks a stack other than the default cde-<customer> (tests use this) */
+const target = () => ({ customer: need(), project: flags.get('project') as string | undefined });
+
 function run(bin: string, args: string[], env: Record<string, string> = {}) {
   const res = spawnSync(bin, args, { stdio: 'inherit', cwd: repoRoot, env: { ...process.env, ...env } });
   if (res.status !== 0) process.exit(res.status ?? 1);
@@ -89,12 +92,12 @@ const commands: Record<string, () => Promise<void>> = {
   },
   /** run the customer's full stack in Docker */
   async up() {
-    compose({ customer: need() }, ['up', '--build', '-d', '--wait']);
+    compose(target(), ['up', '--build', '-d', '--wait']);
     const { appPort } = customerPorts(need());
     console.log(`✔ ${need()} running at http://localhost:${appPort}`);
   },
   async down() {
-    compose({ customer: need() }, flags.has('volumes') ? ['down', '-v'] : ['down']);
+    compose(target(), flags.has('volumes') ? ['down', '-v'] : ['down']);
   },
   /**
    * pg_dump of the customer's running database, executed inside its db container (no host client needed).
@@ -110,7 +113,7 @@ const commands: Record<string, () => Promise<void>> = {
 
     const args = ['exec', '-T', 'db', 'sh', '-c', `pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=${format}`];
     if (!out) {
-      const status = composeToFd({ customer: name }, args, 1);
+      const status = composeToFd(target(), args, 1);
       if (status !== 0) throw new Error(`pg_dump failed (exit ${status}); is the ${name} stack running?`);
       return;
     }
@@ -120,7 +123,7 @@ const commands: Record<string, () => Promise<void>> = {
     const fd = openSync(tmp, 'w', 0o600);
     let status: number;
     try {
-      status = composeToFd({ customer: name }, args, fd);
+      status = composeToFd(target(), args, fd);
     } finally {
       closeSync(fd);
     }
