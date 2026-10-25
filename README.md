@@ -20,7 +20,12 @@ yarn install
 yarn cde up acme     # http://localhost:8081
 yarn cde up globex   # http://localhost:8082
 yarn cde up bare     # http://localhost:8083
+
+# Stop and remove a stack (including volumes) with:
 yarn cde down acme --volumes
+
+# Stop and remove a stack leaving volumes/db intact with:
+yarn cde down acme
 ```
 
 ## How it fits together
