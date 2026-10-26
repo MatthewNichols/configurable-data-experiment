@@ -30,6 +30,76 @@ yarn cde down acme
 
 ## How it fits together
 
+Rounded, highlighted nodes are extensibility points: places a customer config or module plugs in without
+touching core code.
+
+```mermaid
+flowchart TB
+    classDef ext fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef core fill:#e0e7ff,stroke:#4f46e5,color:#1e1b4b
+
+    subgraph inputs["Per-customer inputs (written against packages/sdk)"]
+        direction LR
+        cfg(["customer.config.ts — defineCustomer<br/>title · tagline · theme · labels · module list"]):::ext
+        subgraph manifest["Modules: modules/* (shared) or customers/&lt;name&gt;/modules/* — defineModule"]
+            direction LR
+            mEntities(["entities<br/>new whole entities"]):::ext
+            mExtends(["extends.&lt;Entity&gt;<br/>fields (JSONB ext) · filters<br/>computed · prismaFields"]):::ext
+            mSchema(["prismaSchema · sql<br/>own tables, views, triggers"]):::ext
+        end
+    end
+
+    subgraph build["Build time — yarn cde build &lt;name&gt; (packages/assembler)"]
+        direction LR
+        asm["load + validate<br/>config and modules"]:::core
+        out[".cde/<br/>registry.json · prisma/ · extras.sql<br/>server-modules.ts · web-modules.ts"]:::core
+        mig["prisma/migrations<br/>(yarn cde migrate)"]:::core
+        img["Docker image<br/>main.mjs + web bundle"]:::core
+        asm --> out --> img
+        out --> mig
+    end
+
+    cfg --> asm
+    manifest --> asm
+
+    subgraph runtime["Runtime — one single-tenant install"]
+        direction LR
+        subgraph web["packages/core-web (Vue 3 + PrimeVue)"]
+            direction TB
+            wGeneric["generic list / form / detail / dashboard<br/>generated from GET /api/meta"]:::core
+            subgraph webExt["defineWebModule"]
+                direction TB
+                wSlots(["slots: app.dashboard · &lt;Entity&gt;.detail.tabs<br/>&lt;Entity&gt;.detail.aside · &lt;Entity&gt;.list.actions"]):::ext
+                wPages(["page overrides: &lt;Entity&gt;.list / .detail / .form"]):::ext
+                wFields(["fieldRenderers: &lt;Entity&gt;.&lt;module&gt;.&lt;field&gt;"]):::ext
+                wRoutes(["routes · nav"]):::ext
+            end
+        end
+
+        subgraph server["packages/core-server (Express)"]
+            direction TB
+            sCrud["GET /api/meta · generic CRUD (Prisma)<br/>search (Kysely) · validation from registry"]:::core
+            subgraph serverExt["defineServerModule"]
+                direction TB
+                sHooks(["hooks: beforeSave · afterSave · beforeDelete"]):::ext
+                sSearch(["search.extend — custom filters"]):::ext
+                sEnrich(["enrich — computed fields"]):::ext
+                sRouter(["router at /api/modules/&lt;module&gt;"]):::ext
+            end
+        end
+
+        db[("PostgreSQL<br/>core tables + ext JSONB<br/>+ module tables / views")]
+
+        wGeneric -- "/api/*" --> sCrud
+        sCrud --> db
+        sRouter --> db
+    end
+
+    img -- runs --> sCrud
+    img -- serves --> wGeneric
+    mig --> db
+```
+
 ```
 packages/sdk          @cde/sdk – the contract: defineModule / defineCustomer, field types, registry types,
                       zod schema builder, server hooks API, web slots API
