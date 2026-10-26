@@ -24,6 +24,7 @@
         "firstName",
         "lastName"
       ],
+      "icon": "pi pi-users",
       "sections": [
         {
           "key": "core",
@@ -123,6 +124,7 @@
         "make",
         "model"
       ],
+      "icon": "pi pi-car",
       "sections": [
         {
           "key": "core",

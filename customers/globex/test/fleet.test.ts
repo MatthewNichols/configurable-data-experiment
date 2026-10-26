@@ -30,6 +30,29 @@ describe('globex fleet rules', () => {
     expect(back.body.fieldErrors['fleet.odometer']).toMatch(/backwards/);
   });
 
+  it('keeps a car at no garage or one, and reports occupancy', async () => {
+    const g = await t.create('garages', { name: 'Test yard', depot: 'north', bays: 3 });
+    const at = (n: string) => ({ ...car(n), ext: { fleet: { ...car(n).ext.fleet, garage: g.id } } });
+    const parked = await t.create('cars', at('GX-0201'));
+    await t.create('cars', { ...at('GX-0202'), ext: { fleet: { ...at('GX-0202').ext.fleet, status: 'rented' } } });
+    const loose = await t.create('cars', car('GX-0203'));
+    expect(loose.ext.fleet.garage).toBeUndefined();
+
+    const here = await t.api.get(`/api/cars?filter[fleet.garage]=${g.id}`);
+    expect(here.body.items.map((c: any) => c.ext.fleet.fleetNumber).sort()).toEqual(['GX-0201', 'GX-0202']);
+    expect((await t.api.get(`/api/modules/fleet/garages/${g.id}/occupancy`)).body).toEqual({ bays: 3, cars: 2, byStatus: { available: 1, rented: 1 } });
+
+    const unknown = await t.api.post('/api/cars', { ...car('GX-0204'), ext: { fleet: { ...car('GX-0204').ext.fleet, garage: '00000000-0000-4000-8000-000000000000' } } });
+    expect(unknown.body.fieldErrors).toEqual({ 'fleet.garage': 'Garage not found' });
+
+    // move a car out (garage cleared), then the delete guard still sees the other one
+    const moved = await t.api.put(`/api/cars/${parked.id}`, { ...car('GX-0201'), vin: parked.vin, ext: { fleet: { ...car('GX-0201').ext.fleet, garage: null } } });
+    expect(moved.body.ext.fleet.garage).toBeNull();
+    const blocked = await t.api.del(`/api/garages/${g.id}`);
+    expect(blocked.status).toBe(422);
+    expect(blocked.body.error).toMatch(/Test yard still has 1 car assigned/);
+  });
+
   it('serves fleet status counts', async () => {
     const res = await t.api.get('/api/modules/fleet/status');
     expect(res.body.available).toBeGreaterThanOrEqual(2);

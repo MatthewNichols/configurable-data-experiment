@@ -15,6 +15,20 @@ export interface SlotProps {
   record?: EntityRecord;
 }
 
+/**
+ * Whole-page overrides, keyed `<Entity>.<kind>`, e.g. `Garage.detail`. The component replaces the
+ * generic list / detail / form page for that entity and receives `PageProps`.
+ * (`form` serves both /new and /:id/edit; `id` is absent when creating.)
+ */
+export type PageKind = 'list' | 'detail' | 'form';
+export type PageName = `${string}.${PageKind}`;
+
+export interface PageProps {
+  entity: RegistryEntity;
+  registry: Registry;
+  id?: string;
+}
+
 export interface SlotContribution {
   id: string;
   title?: string;
@@ -27,6 +41,7 @@ export interface WebModule {
   slots?: Partial<Record<SlotName, SlotContribution[]>>;
   routes?: Array<{ path: string; name?: string; component: unknown; label?: string }>;
   nav?: Array<{ label: string; to: string; icon?: string }>;
+  pages?: Partial<Record<PageName, unknown>>;
   /** Custom read-only renderers keyed by `<Entity>.<fieldKey>`, e.g. `Customer.loyalty.tier` */
   fieldRenderers?: Record<string, unknown>;
 }

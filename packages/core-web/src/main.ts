@@ -9,9 +9,7 @@ import { apiFetch } from '@cde/sdk/web';
 import type { Registry } from '@cde/sdk';
 import App from './App.vue';
 import Dashboard from './pages/Dashboard.vue';
-import EntityListPage from './pages/EntityListPage.vue';
-import EntityDetailPage from './pages/EntityDetailPage.vue';
-import EntityFormPage from './pages/EntityFormPage.vue';
+import EntityPage from './pages/EntityPage.vue';
 import { createContext, CTX } from './lib/context.ts';
 import { customerPreset } from './lib/theme.ts';
 import './style.css';
@@ -30,10 +28,11 @@ const router = createRouter({
   routes: [
     { path: '/', name: 'dashboard', component: Dashboard },
     ...moduleRoutes,
-    { path: '/:entity', name: 'list', component: EntityListPage },
-    { path: '/:entity/new', name: 'new', component: EntityFormPage },
-    { path: '/:entity/:id', name: 'detail', component: EntityDetailPage },
-    { path: '/:entity/:id/edit', name: 'edit', component: EntityFormPage },
+    // generic pages, unless a module overrides them via `pages` (see EntityPage)
+    { path: '/:entity', name: 'list', component: EntityPage, props: { kind: 'list' } },
+    { path: '/:entity/new', name: 'new', component: EntityPage, props: { kind: 'form' } },
+    { path: '/:entity/:id', name: 'detail', component: EntityPage, props: { kind: 'detail' } },
+    { path: '/:entity/:id/edit', name: 'edit', component: EntityPage, props: { kind: 'form' } },
   ],
 });
 

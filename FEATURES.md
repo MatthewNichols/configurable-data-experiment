@@ -47,6 +47,7 @@ Declarative modules cover the common cases. When you need more, a code module ca
 
 | Need | Hook |
 | --- | --- |
+| New entities | `entities`: a generated table plus the generic API, search, list, form and detail UI, just like core entities. Other modules can extend them and reference them |
 | Your own tables | `prismaSchema` fragments, with relation fields injected into core models |
 | Views, triggers, raw SQL | `sql`: idempotent extras, tracked by hash |
 | API endpoints | an Express router mounted at `/api/modules/<name>` |
@@ -54,6 +55,7 @@ Declarative modules cover the common cases. When you need more, a code module ca
 | Custom filters | `search.extend` with Kysely |
 | Derived values | `enrich`, which adds batched computed fields to list and detail responses |
 | UI | components for named slots (`Car.detail.tabs`, `app.dashboard`, `<Entity>.list.actions`…), field renderers and routes |
+| Custom pages | `pages`: replace the generic list, detail or form page for any entity (for example, Globex's `Garage.detail`). Overrides can reuse `EntityTable`, `FieldDisplay` and `ModuleSlot` from `@cde/core-web/ui` |
 
 ```ts
 hooks.beforeSave('Car', ({ input, existing }) => {

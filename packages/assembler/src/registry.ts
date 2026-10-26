@@ -3,6 +3,7 @@ import {
   filterOperators,
   humanize,
   searchModes,
+  type EntityDef,
   type FieldDef,
   type Registry,
   type RegistryEntity,
@@ -44,23 +45,59 @@ function toField(key: string, def: FieldDef, extra: Partial<RegistryField> & Pic
   };
 }
 
+const ENTITY_NAME = /^[A-Z][a-zA-Z0-9]*$/;
+/** columns every generated table has, so module entity fields cannot use these names */
+const RESERVED_COLUMNS = new Set(['id', 'ext', 'searchVector', 'createdAt', 'updatedAt']);
+/** first URL segments the app already uses */
+const RESERVED_PATHS = new Set(['api', 'modules', 'new']);
+
+const kebab = (s: string) => s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/[\s_]+/g, '-').toLowerCase();
+
+/** Turns a module's entity declaration into a registry entity (fields become real columns). */
+function moduleEntity(module: string, name: string, def: EntityDef, entityNames: Set<string>, problems: string[]): RegistryEntity {
+  const pluralLabel = def.pluralLabel ?? `${def.label}s`;
+  const where = `${module}: entity ${name}`;
+  for (const t of def.titleFields ?? []) if (!def.fields?.[t]) problems.push(`${where}: titleFields "${t}" is not one of its fields`);
+  if (!def.titleFields?.length) problems.push(`${where}: needs at least one titleFields entry`);
+  return {
+    name,
+    label: def.label,
+    pluralLabel,
+    path: def.path ?? kebab(pluralLabel),
+    table: name,
+    delegate: name[0].toLowerCase() + name.slice(1),
+    titleFields: def.titleFields ?? [],
+    icon: def.icon,
+    module,
+    sections: [{ key: 'core', label: 'Details' }],
+    filters: [],
+    fields: Object.entries(def.fields ?? {}).map(([key, f]) => {
+      if (!FIELD_NAME.test(key)) problems.push(`${where}: field names must be camelCase ("${key}")`);
+      if (RESERVED_COLUMNS.has(key)) problems.push(`${where}: field name "${key}" is reserved`);
+      checkField(`${module}: ${name}.${key}`, f, entityNames, problems);
+      return toField(key, f, { source: 'core', column: key, section: 'core' });
+    }),
+  };
+}
+
 /** Merges core entities with every module's declarations, validating as it goes. */
 export function buildRegistry(customer: LoadedCustomer): Registry {
   const problems: string[] = [];
   const { config } = customer;
   const entities: Record<string, RegistryEntity> = {};
-  const entityNames = new Set(coreEntities.map((e) => e.name));
+  const entityOrder = coreEntities.map((e) => e.name);
+  const entityNames = new Set(entityOrder);
 
   for (const core of coreEntities) {
-    const labels = config.labels?.[core.name] ?? {};
     entities[core.name] = {
       name: core.name,
-      label: labels.label ?? core.label,
-      pluralLabel: labels.pluralLabel ?? core.pluralLabel,
+      label: core.label,
+      pluralLabel: core.pluralLabel,
       path: core.path,
       table: core.table,
       delegate: core.delegate,
       titleFields: core.titleFields,
+      icon: core.icon,
       sections: [{ key: 'core', label: 'Details' }],
       filters: [],
       fields: Object.entries(core.fields).map(([key, def]) => {
@@ -69,8 +106,36 @@ export function buildRegistry(customer: LoadedCustomer): Registry {
       }),
     };
   }
-  for (const [name] of Object.entries(config.labels ?? {}))
+
+  // Module entities are registered before any `extends` is applied, so a module can extend (or
+  // reference) an entity declared by a module listed after it. Invalid modules are reported below.
+  const valid = (m: LoadedCustomer['modules'][number], i: number) =>
+    MODULE_NAME.test(m.manifest.name ?? '') && customer.modules.findIndex((x) => x.manifest.name === m.manifest.name) === i;
+  const modules = customer.modules.filter(valid);
+  for (const { manifest: m } of modules) for (const name of Object.keys(m.entities ?? {})) entityNames.add(name);
+  for (const { manifest: m } of modules) {
+    for (const [name, def] of Object.entries(m.entities ?? {})) {
+      if (!ENTITY_NAME.test(name)) problems.push(`${m.name}: entity name "${name}" must be PascalCase`);
+      if (entities[name]) {
+        problems.push(`${m.name}: entity "${name}" is already declared by ${entities[name].module ?? 'core'}`);
+        continue;
+      }
+      const entity = moduleEntity(m.name, name, def, entityNames, problems);
+      const clash = Object.values(entities).find((e) => e.path === entity.path);
+      if (clash) problems.push(`${m.name}: entity ${name} path "${entity.path}" is already used by ${clash.name}`);
+      if (RESERVED_PATHS.has(entity.path)) problems.push(`${m.name}: entity ${name} path "${entity.path}" is reserved`);
+      entities[name] = entity;
+      entityOrder.push(name);
+    }
+  }
+
+  for (const [name, labels] of Object.entries(config.labels ?? {})) {
     if (!entities[name]) problems.push(`labels: unknown entity "${name}"`);
+    else {
+      if (labels.label) entities[name].label = labels.label;
+      if (labels.pluralLabel) entities[name].pluralLabel = labels.pluralLabel;
+    }
+  }
 
   const seen = new Map<string, string>();
   for (const { manifest: m, ref } of customer.modules) {
@@ -122,7 +187,7 @@ export function buildRegistry(customer: LoadedCustomer): Registry {
 
   return {
     customer: { name: config.name, title: config.title, tagline: config.tagline, theme: config.theme ?? {} },
-    entityOrder: coreEntities.map((e) => e.name),
+    entityOrder,
     entities,
     modules: customer.modules.map(({ manifest: m }) => ({
       name: m.name,

@@ -1,14 +1,11 @@
-import type { FieldDef } from '@cde/sdk';
+import type { EntityDef } from '@cde/sdk';
 
-export interface CoreEntityDef {
+export interface CoreEntityDef extends EntityDef {
   name: string;
-  label: string;
   pluralLabel: string;
   path: string;
   table: string;
   delegate: string;
-  titleFields: string[];
-  fields: Record<string, FieldDef>;
 }
 
 /**
@@ -23,6 +20,7 @@ export const coreEntities: CoreEntityDef[] = [
     path: 'customers',
     table: 'Customer',
     delegate: 'customer',
+    icon: 'pi pi-users',
     titleFields: ['firstName', 'lastName'],
     fields: {
       firstName: { type: 'string', label: 'First name', required: true, searchable: ['text', 'filter'], list: true },
@@ -39,6 +37,7 @@ export const coreEntities: CoreEntityDef[] = [
     path: 'cars',
     table: 'Car',
     delegate: 'car',
+    icon: 'pi pi-car',
     titleFields: ['year', 'make', 'model'],
     fields: {
       vin: { type: 'string', label: 'VIN', required: true, maxLength: 17, searchable: ['text', 'filter'], list: true },

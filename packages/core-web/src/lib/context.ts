@@ -1,12 +1,14 @@
 import { inject, type InjectionKey } from 'vue';
 import type { Registry, RegistryEntity } from '@cde/sdk';
-import type { SlotContribution, WebModule } from '@cde/sdk/web';
+import type { PageKind, SlotContribution, WebModule } from '@cde/sdk/web';
 
 export interface AppContext {
   registry: Registry;
   modules: Record<string, WebModule>;
   slot(name: string): SlotContribution[];
   fieldRenderer(entity: string, key: string): unknown;
+  /** a module's replacement for the generic page, if any */
+  page(entity: string, kind: PageKind): unknown;
   entityByPath(path: string): RegistryEntity | undefined;
 }
 
@@ -28,6 +30,11 @@ export function createContext(registry: Registry, modules: Record<string, WebMod
         if (r) return r;
       }
       return undefined;
+    },
+    page: (entity, kind) => {
+      const found = Object.entries(active).filter(([, m]) => m.pages?.[`${entity}.${kind}`]);
+      if (found.length > 1) console.warn(`Modules ${found.map(([n]) => n).join(', ')} all override ${entity}.${kind}; using ${found[0][0]}`);
+      return found[0]?.[1].pages![`${entity}.${kind}`];
     },
     entityByPath: (path) => Object.values(registry.entities).find((e) => e.path === path),
   };

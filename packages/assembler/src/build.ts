@@ -6,6 +6,7 @@ import type { Registry, RegistryField } from '@cde/sdk';
 import { loadCustomer, type LoadedCustomer } from './load.ts';
 import { relImport, repoRoot } from './paths.ts';
 import { buildRegistry } from './registry.ts';
+import { entityPrisma } from './entity-prisma.ts';
 import { extrasSql } from './sql.ts';
 
 export interface BuildResult {
@@ -74,17 +75,24 @@ export async function buildCustomer(
 
   write(path.join(outDir, 'registry.json'), JSON.stringify(registry, null, 2) + '\n');
 
-  // --- Prisma schema folder: core model (with injected fields) + module fragments
-  let core = readFileSync(require.resolve('@cde/core-server/prisma/core.prisma'), 'utf8');
+  // --- Prisma schema folder: core models + generated module entity models (both with injected
+  // fields) + module fragments
+  const schemas: Record<string, string> = {
+    'core.prisma': readFileSync(require.resolve('@cde/core-server/prisma/core.prisma'), 'utf8'),
+  };
+  for (const name of registry.entityOrder) {
+    const e = registry.entities[name];
+    if (e.module) schemas[`entity.${name}.prisma`] = entityPrisma(e);
+  }
   for (const { manifest: m } of customer.modules) {
     for (const [entity, ext] of Object.entries(m.extends ?? {})) {
       if (!ext.prismaFields?.length) continue;
       const marker = `// @cde:extend ${entity}`;
       const lines = ext.prismaFields.map((l) => `  ${l.trim()} // from module ${m.name}`).join('\n');
-      core = core.replace(marker, `${lines}\n  ${marker}`);
+      for (const [file, text] of Object.entries(schemas)) schemas[file] = text.replace(marker, `${lines}\n  ${marker}`);
     }
   }
-  write(path.join(outDir, 'prisma', 'core.prisma'), core);
+  for (const [file, text] of Object.entries(schemas)) write(path.join(outDir, 'prisma', file), text);
   for (const { manifest: m, dir } of customer.modules) {
     if (!m.prismaSchema) continue;
     write(path.join(outDir, 'prisma', `module.${m.name}.prisma`), readFileSync(path.resolve(dir, m.prismaSchema), 'utf8'));

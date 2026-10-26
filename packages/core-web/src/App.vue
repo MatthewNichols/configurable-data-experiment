@@ -12,7 +12,7 @@ const nav = computed(() => [
   ...registry.entityOrder.map((n) => ({
     label: registry.entities[n].pluralLabel,
     to: `/${registry.entities[n].path}`,
-    icon: n === 'Car' ? 'pi pi-car' : 'pi pi-users',
+    icon: registry.entities[n].icon,
   })),
   ...Object.values(modules).flatMap((m) => m.nav ?? []),
 ]);
