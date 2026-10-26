@@ -136,6 +136,7 @@ forms and the detail pages from it.
 
 ```bash
 yarn cde up acme          # build + run a customer stack
+yarn cde up --all         # every customer's stack at once (also: cde down --all [--volumes])
 yarn dev acme             # Postgres in Docker, API with tsx watch, Vite with hot reload
 yarn cde migrate acme --name add-thing
 yarn cde migrate-check acme
@@ -152,6 +153,9 @@ yarn install
 yarn cde up acme     # http://localhost:8081  (loyalty, service history, sales, emerald theme)
 yarn cde up globex   # http://localhost:8082  (fleet rules, Renters, dashboard widget, amber theme)
 yarn cde up bare     # http://localhost:8083  (core only, the baseline)
+yarn cde up --all    # or all three at once
 ```
 
-To write your first module, see the [README](README.md#writing-a-module).
+To write your first module, see the [README](README.md#writing-a-module). The README's
+[architecture flowchart](README.md#how-it-fits-together) marks every extensibility point, and
+[DB-SCHEMA.md](DB-SCHEMA.md) shows each install's assembled schema and indexes.
