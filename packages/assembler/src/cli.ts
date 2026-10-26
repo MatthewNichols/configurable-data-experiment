@@ -92,12 +92,28 @@ const commands: Record<string, () => Promise<void>> = {
   },
   /** run the customer's full stack in Docker */
   async up() {
-    compose(target(), ['up', '--build', '-d', '--wait']);
+    const args = ['up', '--build', '-d', '--wait'];
+    if (flags.has('all')) {
+      if (flags.has('project')) throw new Error('cde up: --all cannot be combined with --project');
+      for (const c of allCustomers()) {
+        compose({ customer: c }, args);
+        console.log(`✔ ${c} running at http://localhost:${customerPorts(c).appPort}`);
+      }
+      return;
+    }
+    compose(target(), args);
     const { appPort } = customerPorts(need());
     console.log(`✔ ${need()} running at http://localhost:${appPort}`);
   },
+  /** stop the customer's stack (--all: every customer's default stack; --volumes: also remove its data) */
   async down() {
-    compose(target(), flags.has('volumes') ? ['down', '-v'] : ['down']);
+    const args = flags.has('volumes') ? ['down', '-v'] : ['down'];
+    if (flags.has('all')) {
+      if (flags.has('project')) throw new Error('cde down: --all cannot be combined with --project');
+      for (const c of allCustomers()) compose({ customer: c }, args);
+      return;
+    }
+    compose(target(), args);
   },
   /**
    * pg_dump of the customer's running database, executed inside its db container (no host client needed).

@@ -20,12 +20,16 @@ yarn install
 yarn cde up acme     # http://localhost:8081
 yarn cde up globex   # http://localhost:8082
 yarn cde up bare     # http://localhost:8083
+yarn cde up --all    # or start every customer's stack at once
 
 # Stop and remove a stack (including volumes) with:
 yarn cde down acme --volumes
 
 # Stop and remove a stack leaving volumes/db intact with:
 yarn cde down acme
+
+# Stop every customer's stack (add --volumes to also wipe their databases):
+yarn cde down --all
 ```
 
 ## How it fits together
@@ -164,7 +168,7 @@ When a core or module schema changes, run `yarn cde migrate <customer> --name <c
 | `yarn cde check` | validate every customer config |
 | `yarn cde migrate <c> --name x` | new migration from the assembled schema (throwaway Postgres via Testcontainers) |
 | `yarn cde migrate-check <c>` | fail on schema/migration drift |
-| `yarn cde up/down <c>` | Docker Compose stack |
+| `yarn cde up/down <c>` | Docker Compose stack (`--all` for every customer's stack; `down --volumes` also removes data) |
 | `yarn cde dump <c> [--out <file>] [--format custom\|plain]` | `pg_dump` of the running stack's database, run inside its db container; streams to stdout unless `--out` — see [recipes/BACKUPS.md](recipes/BACKUPS.md) for encrypted backups |
 | `yarn dev <c>` | Postgres in compose + API (tsx watch) on :3000 + Vite dev server on :5173 |
 | `yarn test` | Vitest: unit + integration (Testcontainers Postgres per suite) |
