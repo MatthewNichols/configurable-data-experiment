@@ -7,7 +7,7 @@ rules, all without forking the core. You describe a field once and the platform 
 validation, search, forms, list columns, TypeScript types and end-to-end tests.
 
 > Status: proof of concept. Everything below is built and covered by tests; see
-> [docs/findings.md](docs/findings.md) for the rough edges.
+> [docs/findings.md](findings.md) for the rough edges.
 
 ---
 
@@ -104,7 +104,7 @@ yarn cde dump acme | age -r age1... > acme-$(date -u +%F).dump.age
   never leaves a truncated file that looks like a good backup.
 - **Choose the format.** The default compressed format restores with `pg_restore`; `--format plain` gives you
   readable SQL.
-- [recipes/BACKUPS.md](recipes/BACKUPS.md) covers scheduled, key-pair-encrypted, off-site backups and how to
+- [recipes/BACKUPS.md](../recipes/BACKUPS.md) covers scheduled, key-pair-encrypted, off-site backups and how to
   test a restore.
 
 ## A UI generated from metadata, not hand-written per entity
@@ -156,6 +156,6 @@ yarn cde up bare     # http://localhost:8083  (core only, the baseline)
 yarn cde up --all    # or all three at once
 ```
 
-To write your first module, see the [README](README.md#writing-a-module). The README's
-[architecture flowchart](README.md#how-it-fits-together) marks every extensibility point, and
+To write your first module, see the [README](../README.md#writing-a-module). The README's
+[architecture flowchart](../README.md#how-it-fits-together) marks every extensibility point, and
 [DB-SCHEMA.md](DB-SCHEMA.md) shows each install's assembled schema and indexes.

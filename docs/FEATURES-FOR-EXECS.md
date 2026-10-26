@@ -100,7 +100,7 @@ There are three demo installs, all from the same codebase:
 | **Acme Motors** | A loyalty program, service history, a sales add-on that restyles the loyalty tier, and green branding |
 | **Globex Rentals** | Fleet rules, garages, "Renters" instead of "Customers", a dashboard widget, and amber branding |
 
-A developer can start all three on a laptop with one command. See the [README](README.md) for details.
+A developer can start all three on a laptop with one command. See the [README](../README.md) for details.
 
 ## What's next
 
@@ -109,7 +109,7 @@ most important decisions before production are these:
 
 1. **How database changes scale with many customers.** Today, a change to the core product means one small
    database update per customer. That's fine for three customers but not for fifty. There are clear options to
-   automate or restructure this. See [docs/findings.md](docs/findings.md).
+   automate or restructure this. See [docs/findings.md](findings.md).
 2. **Fields that admins add themselves.** Today a developer adds fields. Much of the groundwork is in place for
    a future in which a customer's admin adds simple fields through the app itself.
 3. **Sign-in and permissions.** These were out of scope for the proof of concept and are needed before real
@@ -120,4 +120,4 @@ most important decisions before production are these:
    customizations can live, and be managed, on their own.
 
 For the technical detail, see [FEATURES-FOR-DEVELOERs.md](FEATURES-FOR-DEVELOERs.md) and
-[docs/findings.md](docs/findings.md).
+[docs/findings.md](findings.md).

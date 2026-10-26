@@ -7,6 +7,12 @@ as its own Docker image + Compose stack.
 
 See [plan-docs/phase-1.md](plan-docs/phase-1.md) for the plan and [docs/findings.md](docs/findings.md) for what we learned.
 
+See [docs/](docs/) for more details.  
+
+## What this is NOT
+
+While parts of the docs sound like this a product or a new framework, it is **not**: It is a POC to explore the extensibility of an existing app. It is just more fun to write (and to read I think) docs as if it were real. And if it seems overly enthusiastic, well I like fleshing out ideas.
+
 ## The three demo installs
 
 | Install | Modules | Shows |
@@ -128,6 +134,7 @@ docker/               Dockerfile (ARG CUSTOMER), compose.base.yml, migrate.sh
 Nothing is discovered at runtime; each image is immutable and reproducible.
 
 ## Writing a module
+(also see [Get Started](/docs/get-started/part-1.md))
 
 ```ts
 // modules/loyalty/cde.module.ts — declarative only: storage, validation, search, indexes, form, list column
